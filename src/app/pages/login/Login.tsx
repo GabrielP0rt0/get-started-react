@@ -1,6 +1,9 @@
-import { useEffect, useMemo, useState } from "react"
+import { useRef, useCallback, useEffect, useMemo, useState } from "react"
+import { InputLogin } from "./components/InputLogin"
 
 export const Login = () => {
+
+    const inputPasswordRef = useRef<HTMLInputElement>(null)
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -21,11 +24,16 @@ export const Login = () => {
     //     console.log('Email: ', email)
     //     console.log('Password: ', password)
     // }, [email, password]);
-    
-    const handleEntrar = () => {
+
+    const handleEntrar = useCallback(() => {
         console.log(email)
         console.log(password)
-    }
+
+        if (inputPasswordRef.current !== null) {
+            inputPasswordRef.current.focus()
+        }
+
+    }, [email, password])
 
 
 
@@ -34,15 +42,19 @@ export const Login = () => {
             <form>
                 <p>Quantidade de caracteres no email = {emailLength}</p>
 
-                <label>
-                    <span>Email</span>
-                    <input value={email} onChange={e => setEmail(e.target.value)}/>
-                </label>
+                <InputLogin
+                    label="Email"
+                    value={email}
+                    onChange={newValue => setEmail(newValue)}
+                    onPressEnter={() => inputPasswordRef.current?.focus()}
+                />
 
-                <label>
-                    <span>Password</span>
-                    <input type="password" value={password} onChange={p => setPassword(p.target.value)}/>
-                </label>
+                <InputLogin 
+                    label="Senha"
+                    value={password}
+                    type="password"
+                    onChange={newValue => setPassword(newValue)}
+                />
 
                 <button type="submit" onClick={handleEntrar}>
                     Entrar

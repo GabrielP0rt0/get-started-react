@@ -1,25 +1,65 @@
-import { useRef } from "react";
-import { Link } from "react-router-dom";
-import { useUsuarioLogado } from "../../shared/hooks";
+import { useCallback, useState } from 'react'
+
+interface IListItem {
+    title: string;
+    isSelected: boolean;
+}
 
 export const Dasboard = () => {
+    const [list, setList] = useState<IListItem[]>([])
 
-    const counterRef = useRef({ counter: 0 })
+    const handleInputKeyDown: React.KeyboardEventHandler<HTMLInputElement> = useCallback((e) => {
+        if (e.key === 'Enter') {
 
-    const { nomeDoUsuario } = useUsuarioLogado();
+            if (e.currentTarget.value.trim().length === 0 ) return;
+            
+            const value = e.currentTarget.value;
+
+            e.currentTarget.value = '';
+
+            setList((oldList) => {
+
+                if (oldList.some((listItem) => listItem.title === value)) return oldList;
+
+                return [...oldList, {
+                    title: value,
+                    isSelected: false
+                }]
+            })
+        }
+    }, [])
 
     return (
         <div>
-            <p> Dashboard </p>
-
-            <p> Usuario Logado {nomeDoUsuario} </p>
-
-            <p>Contador: {counterRef.current.counter}</p>
-
-            <button onClick={() => counterRef.current.counter++}> Somar </button>
-            <button onClick={() => console.log(counterRef.current.counter)}> Logar </button>
+            <p>Lista</p>
             
-            <Link to="/entrar"> Login </Link>
+            <p>{list.filter((listItem) => listItem.isSelected).length}</p>
+            <input type="text" 
+                onKeyDown={handleInputKeyDown}
+            />
+
+            <ul>
+                {list.map((listItem) => {
+                    return <li key={listItem.title}>
+                        <input type="checkbox" 
+                            checked={listItem.isSelected}
+                            onChange={(e) => {
+                                setList(oldList => {
+                                    return oldList.map(oldlistItem => {
+                                        const newIsSelected = oldlistItem.title === listItem.title ? !oldlistItem.isSelected : oldlistItem.isSelected;
+                                        return {
+                                            ...oldlistItem,
+                                            isSelected: newIsSelected
+                                        }
+                                    })
+                                })
+                            }}
+                        />
+                        {listItem.title}
+                        </li>
+                })}
+            </ul>
+
         </div>
     );
 }
